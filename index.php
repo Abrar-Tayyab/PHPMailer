@@ -1,6 +1,11 @@
 <?php
 require_once('PHPMailLiabrary/send_email.php');
 
-$send = send_mail('demo@test-links.com','Subject1','body');
+$subject = "Custom Order Request";
+$to_email = $_POST['email'];
+$body = "body";
+
+
+$send = send_mail($to_email,$subject,$body);
 
 echo $send;
