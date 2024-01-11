@@ -1,7 +1,7 @@
 <?php
 $customer = 'Customer';
-$brand_name = 'Brand';
+$brand_name = 'Brand Name';
 $port = '465';
-$host = 'test-links.com';
+$host = 'smtp.hostinger.com';
 $from_email = 'demo@test-links.com';
-$password = '9z@}s(GUP=hE';
+$password = '12345678';
