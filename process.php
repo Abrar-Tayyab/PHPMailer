@@ -1,24 +1,43 @@
 <?php
 require_once('PHPMailLiabrary/send_email.php');
 
+$is_ajax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 
-$form_fields = $_POST;
+$subject            = "Contact Form";
+$to_email           = ""; //where you want to receive the email
+$website_logo_url   = "";
+$redirect_url       = "http://localhost/contact-form.php"; // dev
+// $redirect_url       = "https://yourdomain.com/contact-form.php"; // production
+$separator = str_contains($redirect_url, '?') ? '&' : '?';
 
-$user_email = filter_var($form_fields['email'] ?? '', FILTER_VALIDATE_EMAIL);
-if (!$user_email) {
-    header('Location: ' . $_SERVER['HTTP_REFERER'] . '?res=' . urlencode('Invalid email'));
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: ' . $redirect_url);
     exit;
 }
 
-$subject            = "Request A Quote from " . str_replace(["\r", "\n"], '', $user_email);
-$to_email           = "ryanpaul.tsc@gmail.com";
-$website_logo_url       = "https://avatars.githubusercontent.com/u/45249072?v=4";
+$form_fields = $_POST;
+
+// $user_email = filter_var($form_fields['email'] ?? '', FILTER_VALIDATE_EMAIL);
+// if (!$user_email) {
+//     $error = 'Invalid email';
+//     if ($is_ajax) {
+//         header('Content-Type: application/json');
+//         echo json_encode(['error' => $error]);
+//     } else {
+//         header('Location: ' . $redirect_url . $separator . 'res=' . urlencode($error));
+//     }
+//     exit;
+// }
 
 $form_data = "";
 
 foreach ($form_fields as $key => $value) {
+    if (is_array($value)) {
+        $value = implode(', ', array_map('strval', $value));
+    }
     $key = htmlspecialchars(str_replace('_', ' ', $key));
-    $value = htmlspecialchars($value);
+    $key = ucfirst($key);
+    $value = htmlspecialchars((string)$value);
     $form_data .= "<tr><td>$key :</td><td>$value</td></tr>";
 }
 
@@ -93,5 +112,12 @@ if($send === 'send'){
     $response = "Detail has not been sent";
 }
 
-header('Location: /contact-form.php?res=' . urlencode($response));
-exit;
+if (!$is_ajax) {
+    header('Location: ' . $redirect_url . $separator . 'res=' . urlencode($response));
+} else {
+    header('Content-Type: application/json');
+    echo json_encode(['redirect' => $redirect_url]);
+}
+
+// header('Location: /contact-form.php?res=' . urlencode($response));
+// exit;
